@@ -1,0 +1,10 @@
+{
+    "user_info":{
+        "first_name": "John",
+        "last_name": "Doe"
+    },
+    "account_info":{
+        "balance": 0,
+        "Debt":0
+    }
+}
