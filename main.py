@@ -51,6 +51,16 @@ def getCheck():
     balance += float(check_amount)
     data['account_info'][0]['balance'] += balance
     updateUserInfo()
+
+def getDebt():
+    global debt
+    global debt_retrieval
+
+    debt_retrieval = debt_amount_entry.get()
+    debt -= float(debt_retrieval)
+    data['account_info'][0]['debt'] -= debt
+    updateUserInfo()
+
 #     try:
 #         data['account_info'][0]['balance'] += int(check_amount)
 #         updateUserInfo()
@@ -66,12 +76,13 @@ all_users = []#--------instantiated in LOAD ALL USERS
 user_first = "John"#---instantiated in login
 user_last = "Doe"#-----instantiated in login
 balance = 0.0#-----------instantiated in def getUserInfo
-debt = 0#--------------instantiated in def getUserInfo
+debt = 0.0#--------------instantiated in def getUserInfo
 file_name_combo = ''#--instantiated in CREATE USER FILE
 user_file = ''#--------instantiated in CREATE USER FILE as a combination of file_name_combo + '.txt'
 check_amount = 0#------instantiated in depositCheck()
 time_string = time.strftime('%H:%M:%S')
 deposit_check = False#--instantiated in MAIN LOOP
+debt_retrieval = 0.0
 
 #--LOAD VARIABLES INTO CORRESPONDING DICTIONARIES--------------------------------------------
 data = {}
@@ -133,14 +144,20 @@ main.title('ACCOUNT INFO')
 Label(main, text=('Welcome back ' + user_first + ' ' + user_last + '!')).grid(row=0, column=0)
 Label(main, text=('Your account is as following:')).grid(row=1,column=0)
 Label(main, text=('Balance: ' + str(balance))).grid(row=2,column=0)
-Label(main, text=('Debt: ' + str(debt))).grid(row=3,column=0)
+Label(main, text=('Debt: -' + str(debt))).grid(row=3,column=0)
 Label(main, text=time_string).grid(row=0,column=10)
 
-#...BUTTON ON PAGE...
+#..Deposit Check Button...
 Label(main, text='Enter the amount you are depositing').grid(row=6, column=0)
 check_amount_entry = Entry(main)
 check_amount_entry.grid(row=6, column=1)
 deposit_button = Button(main, text='Deposit',command=getCheck).grid(row=6,column=2)
+
+#..Input any "debt Costs".....
+Label(main, text='Enter the purchases [cost]').grid(row=7,column=0)
+debt_amount_entry = Entry(main)
+debt_amount_entry.grid(row=7, column=1)
+debt_button = Button(main, text='Debt Entry', command=getDebt).grid(row=7, column=2)
 
 logout_button = Button(main, text='Logout', command=close_window, fg='red').grid(row=10,column=0)
 main.mainloop()
