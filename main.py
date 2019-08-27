@@ -8,11 +8,11 @@ os.chdir(r'C:\Users\matthew.shum\Documents\GitHub\Account-Manager')
 
 #--LIST-FUNCTIONS-----------------------------------------------------------------------------
 """
-def getCheck() -- retrieves check amount entered by user
-def close_login() -- retrieves user first and last name and then stores them in local variables
-def close_window() -- closes the main window (main)
-def getUserInfo() -- retrieves user info and stores into global vars
-def depositCheck() -- prompts user for check 
+def getCheck() ------- retrieves check amount entered by user
+def close_login() ---- retrieves user first and last name and then stores them in local variables
+def close_window() --- closes the main window (main)
+def getUserInfo() ---- retrieves user info and stores into global vars
+def depositCheck() --- prompts user for check 
 """
 def close_login():
     global user_first
@@ -20,7 +20,6 @@ def close_login():
 
     user_first = first_name_entry.get()
     user_last = last_name_entry.get()
-#     print(user_first,user_last,first_name_entry.get(),last_name_entry.get())
     login.destroy()
 
 def close_window():
@@ -60,13 +59,6 @@ def getDebt():
     debt -= float(debt_retrieval)
     data['account_info'][0]['debt'] -= debt
     updateUserInfo()
-
-#     try:
-#         data['account_info'][0]['balance'] += int(check_amount)
-#         updateUserInfo()
-#     except:
-#         print("WTF")
-#         print("error ")
 
 
 
