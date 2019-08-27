@@ -14,11 +14,6 @@ def close_window() -- closes the main window (main)
 def getUserInfo() -- retrieves user info and stores into global vars
 def depositCheck() -- prompts user for check 
 """
-def getCheck():
-    global check_amount
-    check_amount = check_amount_entry.get()
-
-
 def close_login():
     global user_first
     global user_last
@@ -45,25 +40,23 @@ def getUserInfo(user):
 def updateUserInfo():
     global data
     global user_file
-    with open(user_file,'r') as outfile:
+    print('opening up and running test file')
+    with open(user_file,'w') as outfile:
         json.dump(data,outfile)
 
-def depositCheck():
-    global data
+def getCheck():
     global check_amount
-    #--DEPOSIT CHECK INTERFACE---------------------------------------------------------------
-    deposit_check = Tk()
-
-    deposit_check.title('DEPOSIT CHECK')
-    Label(deposit_check, text='Enter the amount you are depositing').grid(row=0, column=0)
-    check_amount_entry = Entry(deposit_check)
-    check_amount_entry.grid(row=0, column=1)
-
-    deposit_button = Button(deposit_check, text='Deposit',command=getCheck).grid(row=0,column=2)
-    data['account_info'][0]['balance'] += int(check_amount)
-
-    deposit_check.mainloop()
-
+    global balance
+    check_amount = check_amount_entry.get()
+    balance += float(check_amount)
+    data['account_info'][0]['balance'] += balance
+    updateUserInfo()
+#     try:
+#         data['account_info'][0]['balance'] += int(check_amount)
+#         updateUserInfo()
+#     except:
+#         print("WTF")
+#         print("error ")
 
 
 
@@ -72,12 +65,13 @@ def depositCheck():
 all_users = []#--------instantiated in LOAD ALL USERS
 user_first = "John"#---instantiated in login
 user_last = "Doe"#-----instantiated in login
-balance = 0#-----------instantiated in def getUserInfo
+balance = 0.0#-----------instantiated in def getUserInfo
 debt = 0#--------------instantiated in def getUserInfo
 file_name_combo = ''#--instantiated in CREATE USER FILE
 user_file = ''#--------instantiated in CREATE USER FILE as a combination of file_name_combo + '.txt'
 check_amount = 0#------instantiated in depositCheck()
 time_string = time.strftime('%H:%M:%S')
+deposit_check = False#--instantiated in MAIN LOOP
 
 #--LOAD VARIABLES INTO CORRESPONDING DICTIONARIES--------------------------------------------
 data = {}
@@ -100,7 +94,7 @@ with open('users.csv','r') as f:
 
 #--LOGIN LOOP--------------------------------------------------------------------------------
 login = Tk()
-login.title('SIGN IN')
+login.title('-----Sign In-----')
 
 Label(login,text='First Name').grid(row=0)
 Label(login,text='Last Name').grid(row=1)
@@ -108,6 +102,7 @@ first_name_entry = Entry(login)
 last_name_entry = Entry(login)
 first_name_entry.grid(row=0,column=1)
 last_name_entry.grid(row=1,column=1)
+Label(login, text=time_string).grid(row=0,column=10)
 
 login_button = Button(login, text='Login', command=close_login, fg='red').grid(row=5,column=0)
 
@@ -142,11 +137,12 @@ Label(main, text=('Debt: ' + str(debt))).grid(row=3,column=0)
 Label(main, text=time_string).grid(row=0,column=10)
 
 #...BUTTON ON PAGE...
-deposit_check = Button(main, text='Deposit Check',command=depositCheck).grid(row=4,column=0)
+Label(main, text='Enter the amount you are depositing').grid(row=6, column=0)
+check_amount_entry = Entry(main)
+check_amount_entry.grid(row=6, column=1)
+deposit_button = Button(main, text='Deposit',command=getCheck).grid(row=6,column=2)
+
 logout_button = Button(main, text='Logout', command=close_window, fg='red').grid(row=10,column=0)
-
 main.mainloop()
-
-updateUserInfo()
 
 # file1.close()
