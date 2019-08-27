@@ -156,15 +156,23 @@ Label(main, text=time_string).grid(row=0,column=10)
 Label(main, text='Enter the amount you are depositing').grid(row=6, column=0)
 check_amount_entry = Entry(main)
 check_amount_entry.grid(row=6, column=1)
-deposit_button = Button(main, text='Deposit',command=getCheck).grid(row=6,column=2)
+deposit_button = Button(main,\
+                        text='Deposit',\
+                        command=getCheck).grid(row=6,column=2)
 
 #..Input any "debt Costs".....
 Label(main, text='Enter the purchases [cost]').grid(row=7,column=0)
 debt_amount_entry = Entry(main)
 debt_amount_entry.grid(row=7, column=1)
-debt_button = Button(main, text='Debt Entry', command=getDebt).grid(row=7, column=2)
+debt_button = Button(main,\
+                     text='Debt Entry',\
+                     command=getDebt).grid(row=7, column=2)
 
-logout_button = Button(main, text='Logout', command=close_window, fg='red').grid(row=10,column=0)
+#..Log out and exit program button.....
+logout_button = Button(main,\
+                       text='Logout',\
+                       command=close_window,\
+                       fg='red').grid(row=10,column=0)
 main.mainloop()
 
 # file1.close()
