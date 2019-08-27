@@ -72,17 +72,17 @@ def getDebt():
 
 
 #---VARIABLES--------------------------------------------------------------------------------
-all_users = []#--------instantiated in LOAD ALL USERS
-user_first = "John"#---instantiated in login
-user_last = "Doe"#-----instantiated in login
+all_users = []#----------instantiated in LOAD ALL USERS
+user_first = "John"#-----instantiated in login
+user_last = "Doe"#-------instantiated in login
 balance = 0.0#-----------instantiated in def getUserInfo
 debt = 0.0#--------------instantiated in def getUserInfo
-file_name_combo = ''#--instantiated in CREATE USER FILE
-user_file = ''#--------instantiated in CREATE USER FILE as a combination of file_name_combo + '.txt'
-check_amount = 0#------instantiated in depositCheck()
-time_string = time.strftime('%H:%M:%S')
-deposit_check = False#--instantiated in MAIN LOOP
-debt_retrieval = 0.0
+file_name_combo = ''#----instantiated in CREATE USER FILE
+user_file = ''#----------instantiated in CREATE USER FILE as a combination of file_name_combo + '.txt'
+check_amount = 0#--------instantiated in depositCheck()
+time_string = time.strftime('%H:%M:%S')# import datetime
+deposit_check = False#---instantiated in MAIN LOOP
+debt_retrieval = 0.0#----instantiated in getDebt()
 
 #--LOAD VARIABLES INTO CORRESPONDING DICTIONARIES--------------------------------------------
 data = {}
@@ -98,12 +98,14 @@ data['account_info'].append({
 })
 
 #-LOAD ALL USERS-----------------------------------------------------------------------------
+#utilize all_users to login. Need to deal with runtime later. NOTE::use dictionary instead of arr
 with open('users.csv','r') as f:
     z = csv.reader(f, delimiter=',')
     for row in f:
             all_users.append(str(row).replace(',','').replace('\n',''))
 
 #--LOGIN LOOP--------------------------------------------------------------------------------
+#takes in users first namd and last name. Uses this as login. We can deal with pswd later
 login = Tk()
 login.title('-----Sign In-----')
 
@@ -119,6 +121,7 @@ login_button = Button(login, text='Login', command=close_login, fg='red').grid(r
 
 login.mainloop()
 #--CREATE USER FILE IF DNE, OR PULL UP EXISTING FILE------------------------------------------
+#if the user is a new one create a new 'account for them' and add to the user file
 file_name_combo = user_first + "_" + user_last
 user_file = "%s.txt" % file_name_combo
 if file_name_combo in all_users:
@@ -137,6 +140,8 @@ else:
         appender.writerow(file_name_combo)
 
 #--MAIN LOOP----------------------------------------------------------------------------------
+#This is where all the transaction occurs. Need to find a way to destroy main loop and reinstantiate
+#--it when some data is updated. Like real time changing balance from 0 -> 4
 main = Tk()
 main.title('ACCOUNT INFO')
 
