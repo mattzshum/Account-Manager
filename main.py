@@ -116,12 +116,13 @@ with open('users.csv','r') as f:
 login = Tk()
 login.title('-----Sign In-----')
 
-Label(login,text='First Name').grid(row=0)
-Label(login,text='Last Name').grid(row=1)
+Label(login,text='Welcome to the BETA for account_manager.\nPlease log in using your first and last names').grid(row=0)
+Label(login,text='First Name').grid(row=1)
+Label(login,text='Last Name').grid(row=2)
 first_name_entry = Entry(login)
 last_name_entry = Entry(login)
-first_name_entry.grid(row=0,column=1)
-last_name_entry.grid(row=1,column=1)
+first_name_entry.grid(row=1,column=1)
+last_name_entry.grid(row=2,column=1)
 Label(login, text=time_string).grid(row=0,column=10)
 
 login_button = Button(login, text='Login', command=close_login, fg='red').grid(row=5,column=0)
