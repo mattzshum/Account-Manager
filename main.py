@@ -30,11 +30,20 @@ def getUserInfo(user):
     global user_last
     global balance
     global debt
-    data = json.load(user)
-    user_first = data['user_info'][0]['user_first']
-    user_last = data['user_info'][0]['user_last']
-    balance = data['account_info'][0]['balance']
-    debt = data['account_info'][0]['debt']
+    data2 = json.load(user)
+    user_first = data2['user_info'][0]['user_first']
+    print(user_first)
+    user_last = data2['user_info'][0]['user_last']
+    print(user_last)
+    balance = data2['account_info'][0]['balance']
+    print(balance)
+    debt = data2['account_info'][0]['debt']
+    print(debt)
+
+    data['user_info'][0]['user_first'] = user_first
+    data['user_info'][0]['user_last'] = user_last
+    data['account_info'][0]['balance'] = balance
+    data['account_info'][0]['debt'] = debt
 
 def updateUserInfo():
     global data
@@ -48,8 +57,8 @@ def getCheck():
     global balance
     check_amount = check_amount_entry.get()
     balance += float(check_amount)
-    data['account_info'][0]['balance'] += balance
-    updateUserInfo()
+    data['account_info'][0]['balance'] = balance
+    #updateUserInfo()
 
 def getDebt():
     global debt
@@ -57,8 +66,8 @@ def getDebt():
 
     debt_retrieval = debt_amount_entry.get()
     debt -= float(debt_retrieval)
-    data['account_info'][0]['debt'] -= debt
-    updateUserInfo()
+    data['account_info'][0]['debt'] = debt
+    #updateUserInfo()
 
 
 
@@ -87,6 +96,12 @@ data['account_info'] = []
 data['account_info'].append({
         'balance': balance,
         'debt': debt
+})
+data['division_of_check'] = []
+data['division_of_check'].append({
+        'needs': 60,
+        'wants': 20,
+        'savings': 20
 })
 
 #-LOAD ALL USERS-----------------------------------------------------------------------------
@@ -141,7 +156,8 @@ main.title('ACCOUNT INFO')
 Label(main, text=('Welcome back ' + user_first + ' ' + user_last + '!')).grid(row=0, column=0)
 Label(main, text=('Your account is as following:')).grid(row=1,column=0)
 Label(main, text=('Balance: ' + str(balance))).grid(row=2,column=0)
-Label(main, text=('Debt: -' + str(debt))).grid(row=3,column=0)
+Label(main, text=('Debt: ' + str(debt))).grid(row=3,column=0)
+Label(main, text=('Running Total: ' + str(balance + debt))).grid(row=4, column=0)
 Label(main, text=time_string).grid(row=0,column=10)
 
 #..Deposit Check Button...
@@ -166,5 +182,6 @@ logout_button = Button(main,\
                        command=close_window,\
                        fg='red').grid(row=10,column=0)
 main.mainloop()
+updateUserInfo()
 
 # file1.close()
