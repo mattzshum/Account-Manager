@@ -1,1 +1,1 @@
-{"user_info": [{"user_first": "Matthew", "user_last": "Shum"}], "account_info": [{"balance": 0, "debt": 0}]}
+{"user_info": [{"user_first": "Matthew", "user_last": "Shum"}], "account_info": [{"balance": 13.0, "debt": -13.0}], "division_of_check": [{"needs": 67.8, "wants": 22.6, "savings": 22.6}], "transaction_log": [{"To harmo": "13"}], "deposit_log": [{"13": "From Harmo"}]}
