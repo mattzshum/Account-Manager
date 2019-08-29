@@ -30,6 +30,14 @@ def getUserInfo(user):
     global user_last
     global balance
     global debt
+    global savings
+    global wants
+    global needs
+
+    global transaction_log
+
+    print('retrieving user info')
+
     data2 = json.load(user)
     user_first = data2['user_info'][0]['user_first']
     print(user_first)
@@ -39,11 +47,24 @@ def getUserInfo(user):
     print(balance)
     debt = data2['account_info'][0]['debt']
     print(debt)
+    needs = data2['division_of_check'][0]['needs']
+    print(needs)
+    wants = data2['division_of_check'][0]['wants']
+    print(wants)
+    savings = data2['division_of_check'][0]['savings']
+    print(savings)
+
+    transaction_log = data2['transaction_log'][0]
+
 
     data['user_info'][0]['user_first'] = user_first
     data['user_info'][0]['user_last'] = user_last
     data['account_info'][0]['balance'] = balance
     data['account_info'][0]['debt'] = debt
+    data['division_of_check'][0]['needs'] = needs
+    data['division_of_check'][0]['wants'] = wants
+    data['division_of_check'][0]['savings'] = savings
+    data['transaction_log'][0] = transaction_log
 
 def updateUserInfo():
     global data
@@ -57,7 +78,14 @@ def getCheck():
     global balance
     check_amount = check_amount_entry.get()
     balance += float(check_amount)
+    savings = .2 * float(check_amount)
+    needs = .6 * float(check_amount)
+    wants = .2 * float(check_amount)
     data['account_info'][0]['balance'] = balance
+
+    data['division_of_check'][0]['savings'] += savings
+    data['division_of_check'][0]['needs'] += needs
+    data['division_of_check'][0]['wants'] += wants
     #updateUserInfo()
 
 def getDebt():
@@ -66,7 +94,16 @@ def getDebt():
 
     debt_retrieval = debt_amount_entry.get()
     debt -= float(debt_retrieval)
+    item_purchased = debt_item_entry.get()
     data['account_info'][0]['debt'] = debt
+    print(debt_retrieval, item_purchased)
+
+    #load this into the transaction log as a transaction item_purchased:debt
+    if item_purchased in transaction_log:
+        transaction_log[item_purchased + 'r'] = debt_retrieval
+    else:
+        transaction_log[item_purchased] = debt_retrieval
+    data['transaction_log'][0] = transaction_log
     #updateUserInfo()
 
 
@@ -84,6 +121,12 @@ check_amount = 0#--------instantiated in depositCheck()
 time_string = time.strftime('%H:%M:%S')# import datetime
 deposit_check = False#---instantiated in MAIN LOOP
 debt_retrieval = 0.0#----instantiated in getDebt()
+needs = 0.0#-------------instantiated in getUserInfo and updateUserInfo
+wants = 0.0#-------------instantiated in getUserInfo and updateUserInfo
+savings=0.0#-------------instantiated in getUserInfo and updateUserInfo
+compressed_transaction_log=''#---instantiated in main_loop
+
+transaction_log={}
 
 #--LOAD VARIABLES INTO CORRESPONDING DICTIONARIES--------------------------------------------
 data = {}
@@ -102,6 +145,10 @@ data['division_of_check'].append({
         'needs': 60,
         'wants': 20,
         'savings': 20
+})
+data['transaction_log'] = []
+data['transaction_log'].append({
+        'item_purchased': 'the cost of the item'
 })
 
 #-LOAD ALL USERS-----------------------------------------------------------------------------
@@ -156,10 +203,20 @@ main.title('ACCOUNT INFO')
 #...TEXT ON PAGE...
 Label(main, text=('Welcome back ' + user_first + ' ' + user_last + '!')).grid(row=0, column=0)
 Label(main, text=('Your account is as following:')).grid(row=1,column=0)
-Label(main, text=('Balance: ' + str(balance))).grid(row=2,column=0)
-Label(main, text=('Debt: ' + str(debt))).grid(row=3,column=0)
-Label(main, text=('Running Total: ' + str(balance + debt))).grid(row=4, column=0)
+Label(main, text=('Balance: ' + str(round(balance,2))) ).grid(row=2,column=0)
+Label(main, text=('Debt: ' + str(round(debt,2))) ).grid(row=3,column=0)
+Label(main, text=('Running Total: ' + str(round((balance+debt),2))) ).grid(row=4, column=0)
 Label(main, text=time_string).grid(row=0,column=10)
+
+print(savings, needs, wants)
+Label(main, text='Savings [recommended]: ' + str(round(savings,2))).grid(row=2, column=4)
+Label(main, text='Needs [recommended]: ' + str(round(needs,2))).grid(row=3, column=4)
+Label(main, text='Wants [recommended]: ' + str(round(wants,2))).grid(row=4, column=4)
+
+for key, element in transaction_log.items():
+    print(key, element)
+    compressed_transaction_log += (key + ' ----------------------------------> ' + element + '\n')
+Label(main, text=compressed_transaction_log).grid(row=15)
 
 #..Deposit Check Button...
 Label(main, text='Enter the amount you are depositing').grid(row=6, column=0)
@@ -170,13 +227,15 @@ deposit_button = Button(main,\
                         command=getCheck).grid(row=6,column=2)
 
 #..Input any "debt Costs".....
-Label(main, text='Enter the purchases [cost]').grid(row=7,column=0)
+Label(main, text='Enter the purchases [cost],[item]').grid(row=7,column=0)
 debt_amount_entry = Entry(main)
 debt_amount_entry.grid(row=7, column=1)
+debt_item_entry = Entry(main)
+debt_item_entry.grid(row=7, column=3)
 debt_button = Button(main,\
                      text='Debt Entry',\
                      command=getDebt).grid(row=7, column=2)
-
+                     
 #..Log out and exit program button.....
 logout_button = Button(main,\
                        text='Logout',\
