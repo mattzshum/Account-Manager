@@ -79,6 +79,10 @@ def updateUserInfo():
 def getCheck():
     global check_amount
     global balance
+    global compressed_deposit_log
+    global deposit_key
+    global deposit_log
+
     check_amount = check_amount_entry.get()
     balance += float(check_amount)
     check_reason = check_reason_entry.get()
@@ -91,58 +95,83 @@ def getCheck():
     data['division_of_check'][0]['savings'] += savings
     data['division_of_check'][0]['needs'] += needs
     data['division_of_check'][0]['wants'] += wants
+
+    key = str(check_amount + ' AT ' + time.strftime('%H:%M:%S'))
     
     print(check_amount, check_reason)
     if check_amount in deposit_log:
-        deposit_log[check_amount + 'r'] = check_reason
+        deposit_log[key] = check_reason
     else:
-        deposit_log[check_amount] = check_reason
+        deposit_log[key] = check_reason
     data['deposit_log'][0] = deposit_log
-    #updateUserInfo()
+
+    #update main logssss
+    balance_label.configure(text=('Balance: ' + str(round(balance,2))))
+    savings_partition_label.configure(text = 'Savings [recommended]: ' + str(round(savings,2)))
+    needs_partition_label.configure(text='Needs [recommended]: ' + str(round(needs,2)))
+    wants_partition_label.configure(text=('Running Total: ' + str(round((balance+debt),2))))
+
+    updated_compressed_deposit_log = compressed_deposit_log + str(deposit_key) + ' ------> ' + key + ' ----------------------------------> ' + check_reason + '\n'
+    deposit_log_label.configure(text = (updated_compressed_deposit_log))
+    deposit_key += 1
+    compressed_deposit_log = updated_compressed_deposit_log
 
 def getDebt():
     global debt
     global debt_retrieval
+    global compressed_transaction_log
+    global transaction_key
+    global transaction_log
 
     debt_retrieval = debt_amount_entry.get()
     debt -= float(debt_retrieval)
-    item_purchased = debt_item_entry.get()
+    item_purchased = (debt_item_entry.get() + ' AT ' + time.strftime('%H:%M:%S'))
     data['account_info'][0]['debt'] = debt
     print(debt_retrieval, item_purchased)
 
     #load this into the transaction log as a transaction item_purchased:debt
     if item_purchased in transaction_log:
-        transaction_log[item_purchased + 'r'] = debt_retrieval
+        transaction_log[item_purchased] = debt_retrieval
     else:
         transaction_log[item_purchased] = debt_retrieval
     data['transaction_log'][0] = transaction_log
-    #updateUserInfo()
+
+    #update main logsssssss
+    debt_label.configure(text=('Debt: ' + str(round(debt, 2))))
+
+    
+    updated_transaction_log = compressed_transaction_log + (str(transaction_key) + ' ------> ' + debt_retrieval + ' ----------------------------------> ' + item_purchased + '\n')
+    transaction_log_label.configure(text=(updated_transaction_log))
+    transaction_key += 1
+    compressed_transaction_log = updated_transaction_log
 
 
 
 
-#---VARIABLES--------------------------------------------------------------------------------
-all_users = []#--------------------instantiated in LOAD ALL USERS
-user_first = "John"#---------------instantiated in login
-user_last = "Doe"#-----------------instantiated in login
-balance = 0.0#---------------------instantiated in def getUserInfo
-debt = 0.0#------------------------instantiated in def getUserInfo
-file_name_combo = ''#--------------instantiated in CREATE USER FILE
-user_file = ''#--------------------instantiated in CREATE USER FILE as a combination of file_name_combo + '.txt'
-check_amount = 0#------------------instantiated in depositCheck()
-time_string = time.strftime('%H:%M:%S')# import datetime
-deposit_check = False#-------------instantiated in MAIN LOOP
-debt_retrieval = 0.0#--------------instantiated in getDebt()
-needs = 0.0#-----------------------instantiated in getUserInfo and updateUserInfo
-wants = 0.0#-----------------------instantiated in getUserInfo and updateUserInfo
-savings=0.0#-----------------------instantiated in getUserInfo and updateUserInfo
-compressed_transaction_log = ''#---instantiated in main_loop
-compressed_deposit_log = ''
+#---VARIABLES----------------------------------------------------------------------------------------------------
+all_users = []#--------------------instantiated in | LOAD ALL USERS
+user_first = "John"#---------------instantiated in | login
+user_last = "Doe"#-----------------instantiated in | login
+balance = 0.0#---------------------instantiated in | def getUserInfo
+debt = 0.0#------------------------instantiated in | def getUserInfo
+file_name_combo = ''#--------------instantiated in | CREATE USER FILE
+user_file = ''#--------------------instantiated in | CREATE USER FILE as a combination of file_name_combo + '.txt'
+check_amount = 0#------------------instantiated in | depositCheck()
+time_string = time.strftime('%H:%M:%S')# import | datetime
+deposit_check = False#-------------instantiated in | MAIN LOOP
+debt_retrieval = 0.0#--------------instantiated in | getDebt()
+needs = 0.0#-----------------------instantiated in | getUserInfo and updateUserInfo
+wants = 0.0#-----------------------instantiated in | getUserInfo and updateUserInfo
+savings=0.0#-----------------------instantiated in | getUserInfo and updateUserInfo
+compressed_transaction_log = ''#---instantiated in | main_loop
+compressed_deposit_log = ''#-------instantiated in | main_loop
+deposit_key = 0#-------------------instantiated in | main_loop
+transaction_key = 0#---------------instantiated in | main_loop
 
 transaction_log={}
 deposit_log = {}
 
-#--LOAD VARIABLES INTO CORRESPONDING DICTIONARIES--------------------------------------------
+#--LOAD VARIABLES INTO CORRESPONDING DICTIONARIES----------------------------------------------------------------
 data = {}
 data['user_info'] = []
 data['user_info'].append({
@@ -169,14 +198,14 @@ data['deposit_log'].append({
         'amount': 'date/reason'
 })
 
-#-LOAD ALL USERS-----------------------------------------------------------------------------
+#-LOAD ALL USERS-------------------------------------------------------------------------------------------------
 #utilize all_users to login. Need to deal with runtime later. NOTE::use dictionary instead of arr
 with open('users.csv','r') as f:
     z = csv.reader(f, delimiter=',')
     for row in f:
             all_users.append(str(row).replace(',','').replace('\n',''))
 
-#--LOGIN LOOP--------------------------------------------------------------------------------
+#--LOGIN LOOP----------------------------------------------------------------------------------------------------
 #takes in users first namd and last name. Uses this as login. We can deal with pswd later
 login = Tk()
 login.title('-----Sign In-----')
@@ -193,7 +222,7 @@ Label(login, text=time_string).grid(row=0,column=10)
 login_button = Button(login, text='Login', command=close_login, fg='red').grid(row=5,column=0)
 
 login.mainloop()
-#--CREATE USER FILE IF DNE, OR PULL UP EXISTING FILE------------------------------------------
+#--CREATE USER FILE IF DNE, OR PULL UP EXISTING FILE--------------------------------------------------------------
 #if the user is a new one create a new 'account for them' and add to the user file
 file_name_combo = user_first + "_" + user_last
 user_file = "%s.txt" % file_name_combo
@@ -212,36 +241,50 @@ else:
         appender = csv.writer(appender,lineterminator='\n')
         appender.writerow(file_name_combo)
 
-#--MAIN LOOP----------------------------------------------------------------------------------
+#--MAIN LOOP------------------------------------------------------------------------------------------------------
 #This is where all the transaction occurs. Need to find a way to destroy main loop and reinstantiate
 #--it when some data is updated. Like real time changing balance from 0 -> 4
 main = Tk()
 main.title('ACCOUNT INFO')
 
 #...TEXT ON PAGE...
-Label(main, text=('Welcome back ' + user_first + ' ' + user_last + '!')).grid(row=0, column=0)
-Label(main, text=('Your account is as following:')).grid(row=1,column=0)
-Label(main, text=('Balance: ' + str(round(balance,2))) ).grid(row=2,column=0)
-Label(main, text=('Debt: ' + str(round(debt,2))) ).grid(row=3,column=0)
-Label(main, text=('Running Total: ' + str(round((balance+debt),2))) ).grid(row=4, column=0)
-Label(main, text=time_string).grid(row=0,column=10)
+welcome_label = Label(main, text=('Welcome back ' + user_first + ' ' + user_last + '!'))
+welcome_label.grid(row=0, column=0)
+welcome_label_ext = Label(main, text=('Your account is as following:'))
+welcome_label_ext.grid(row=1,column=0)
+balance_label = Label(main, text=('Balance: ' + str(round(balance,2))) )
+balance_label.grid(row=2,column=0)
+debt_label = Label(main, text=('Debt: ' + str(round(debt,2))) )
+debt_label.grid(row=3,column=0)
+total_label = Label(main, text=('Running Total: ' + str(round((balance+debt),2))) )
+total_label.grid(row=4, column=0)
+time_label = Label(main, text=time_string).grid(row=0,column=10)
 
 print(savings, needs, wants)
-Label(main, text='Savings [recommended]: ' + str(round(savings,2))).grid(row=2, column=4)
-Label(main, text='Needs [recommended]: ' + str(round(needs,2))).grid(row=3, column=4)
-Label(main, text='Wants [recommended]: ' + str(round(wants,2))).grid(row=4, column=4)
+savings_partition_label = Label(main, text='Savings [recommended]: ' + str(round(savings,2)))
+savings_partition_label.grid(row=2, column=4)
+needs_partition_label = Label(main, text='Needs [recommended]: ' + str(round(needs,2)))
+needs_partition_label.grid(row=3, column=4)
+wants_partition_label = Label(main, text='Wants [recommended]: ' + str(round(wants,2)))
+wants_partition_label.grid(row=4, column=4)
 
+transaction_key = 0
 for key, element in transaction_log.items():
     print(key, element)
-    compressed_transaction_log += (key + ' ----------------------------------> ' + element + '\n')
+    compressed_transaction_log += (str(transaction_key) + ' ------> ' + key + ' ----------------------------------> ' + element + '\n')
+    transaction_key += 1
 Label(main, text='Transaction Log').grid(row=14)
-Label(main, text=compressed_transaction_log).grid(row=15)
+transaction_log_label = Label(main, text=compressed_transaction_log)
+transaction_log_label.grid(row=15)
 
+deposit_key = 0
 for key, element in deposit_log.items():
     print(key, element)
-    compressed_deposit_log += (key + ' ----------------------------------> ' + element + '\n')
+    compressed_deposit_log += (str(deposit_key) + ' ------> ' + key + ' ----------------------------------> ' + element + '\n')
+    deposit_key += 1
 Label(main, text='Deposit Log').grid(row=14, column=3)
-Label(main, text=compressed_deposit_log).grid(row=15, column=3)
+deposit_log_label = Label(main, text=compressed_deposit_log)
+deposit_log_label.grid(row=15, column=3)
 
 #..Deposit Check Button...
 Label(main, text='Enter the amount you are depositing').grid(row=6, column=0)
@@ -267,7 +310,7 @@ debt_button = Button(main,\
 logout_button = Button(main,\
                        text='Logout',\
                        command=close_window,\
-                       fg='red').grid(row=10,column=0)
+                       fg='red').grid(row=0,column=9)
 main.mainloop()
 updateUserInfo()
 
